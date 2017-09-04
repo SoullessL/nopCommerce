@@ -1,4 +1,5 @@
 ﻿@model TopicModel
+@using Microsoft.AspNetCore.WebUtilities
 @using Nop.Core.Domain.Seo
 @inject SeoSettings seoSettings
 @{
@@ -20,6 +21,12 @@
     if (seoSettings.CanonicalUrlsEnabled)
     {
         var topicUrl = Url.RouteUrl("Topic", new { SeName = Model.SeName }, this.Url.ActionContext.HttpContext.Request.Scheme);
+        if (seoSettings.QueryStringInCanonicalUrlsEnabled)
+        {
+            var queryParameters = this.Context.Request.Query.OrderBy(parameter => parameter.Key)
+                .ToDictionary(parameter => parameter.Key, parameter => parameter.Value.ToString());
+            topicUrl = QueryHelpers.AddQueryString(topicUrl, queryParameters);
+        }
         Html.AddCanonicalUrlParts(topicUrl);
     }
 

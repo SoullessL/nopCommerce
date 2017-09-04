@@ -1,4 +1,5 @@
 ﻿@model CategoryModel
+@using Microsoft.AspNetCore.WebUtilities
 @using Nop.Core.Domain.Common
 @using Nop.Core.Domain.Seo
 @inject SeoSettings seoSettings
@@ -17,6 +18,12 @@
     if (seoSettings.CanonicalUrlsEnabled)
     {
         var categoryUrl = Url.RouteUrl("Category", new { SeName = Model.SeName }, this.Url.ActionContext.HttpContext.Request.Scheme);
+        if (seoSettings.QueryStringInCanonicalUrlsEnabled)
+        {
+            var queryParameters = this.Context.Request.Query.OrderBy(parameter => parameter.Key)
+                .ToDictionary(parameter => parameter.Key, parameter => parameter.Value.ToString());
+            categoryUrl = QueryHelpers.AddQueryString(categoryUrl, queryParameters);
+        }
         Html.AddCanonicalUrlParts(categoryUrl);
     }
 

@@ -1,4 +1,5 @@
 ﻿@model ProductsByTagModel
+@using Microsoft.AspNetCore.WebUtilities
 @using Nop.Core.Domain.Seo
 @inject SeoSettings seoSettings
 @{
@@ -13,6 +14,12 @@
     if (seoSettings.CanonicalUrlsEnabled)
     {
         var productsByTagUrl = Url.RouteUrl("ProductsByTag", new { productTagId = Model.Id, SeName = Model.TagSeName }, this.Url.ActionContext.HttpContext.Request.Scheme);
+        if (seoSettings.QueryStringInCanonicalUrlsEnabled)
+        {
+            var queryParameters = this.Context.Request.Query.OrderBy(parameter => parameter.Key)
+                .ToDictionary(parameter => parameter.Key, parameter => parameter.Value.ToString());
+            productsByTagUrl = QueryHelpers.AddQueryString(productsByTagUrl, queryParameters);
+        }
         Html.AddCanonicalUrlParts(productsByTagUrl);
     }
 }
